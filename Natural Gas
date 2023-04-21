@@ -1,0 +1,98 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 19 11:40:53 2023
+UF plot creation and data manipulation
+
+@author: jvanwestrenen
+"""
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#delete images
+plt.close('all')
+
+
+data = pd.read_excel(r"C:\Users\Owner\Documents\CHE4186_Senior_Design\UFI Bristol Utilities 2016 to date - 2022 end.xlsx", sheet_name= None)
+
+#all utilities sheet
+all_Ut = data["ALL UTILITIES"]
+all_Ut.columns = all_Ut.iloc[2]
+all_Ut = all_Ut[4:]
+
+
+#Natural Gas---------------------------------
+#calculate the CO2 production
+ef_NG = 53.1148
+f1 = 2.20462
+
+df_NG = all_Ut[['Date', 'Natural Gas Usage']]
+
+df_spunlb = pd.DataFrame(all_Ut["Spun Pounds"], columns= ['Spun Pounds'])
+df_NG['Natural Gas Usage'] = df_NG['Natural Gas Usage'].apply(pd.to_numeric, errors='coerce')
+df_spunlb = df_spunlb.apply(pd.to_numeric, errors='coerce')
+
+df_NG = df_NG.dropna()
+df_spunlb = df_spunlb.dropna()
+
+print(df_NG)
+lbC02_NG = df_NG['Natural Gas Usage'].mul(ef_NG).mul(f1)
+
+merged_df = pd.merge(df_NG, df_spunlb, left_index=True, right_index=True)
+lbC02_NG_per_spunlb = merged_df['Natural Gas Usage'] * ef_NG * f1 / merged_df['Spun Pounds']
+
+
+#Calculate per year --------------------------------
+df_NG['Date'] = pd.to_datetime(df_NG['Date'])
+df_NG['Year']= df_NG['Date'].dt.year  # Create a new column with year
+
+df_NG_yearly = df_NG.groupby('Year').sum()
+df_NG_yearly = df_NG_yearly.reset_index()
+heat_Days = [4003, 3730, 4305, 4220, 4373, 4413, 4606]
+df_NG_yearly['Heat Degree Days'] = heat_Days
+print(df_NG_yearly)
+print(df_NG_yearly['Natural Gas Usage']* ef_NG * f1)
+
+merged_df['Date'] = pd.to_datetime(merged_df['Date'])
+merged_df['Year'] = merged_df['Date'].dt.year
+merged_df_yearly = merged_df.groupby('Year').sum()
+print(merged_df_yearly['Natural Gas Usage'] / merged_df_yearly['Spun Pounds'])
+
+# Create a bar chart
+fig, ax = plt.subplots(figsize = (8,8))
+ax.bar(df_NG_yearly['Year'], df_NG_yearly['Natural Gas Usage'], color = 'white', hatch = '//', edgecolor = 'black')
+ax.set_xlabel('Year')
+ax.set_ylabel('Natural Gas Usage (MMBtu)')
+
+axl = ax.twinx()
+axl.plot(df_NG_yearly['Year'], df_NG_yearly['Heat Degree Days'], linestyle = '-', color = 'red')
+
+axl.set_ylabel('Total Heeating Degree Days)')
+ax.tick_params(axis='both', which='both', direction='in', width=2, length=5, pad=8, labelsize=14, color='black')
+
+
+plt.show()
+#plotting----------------------------------
+# Set the font size for the plot
+plt.rcParams.update({'font.size': 14, 'axes.linewidth': 2})
+
+# Create the figure and axis objects
+fig1, ax1 = plt.subplots(figsize=(8, 8))
+
+# Plot the data
+ax1.plot(df_NG['Date'], lbC02_NG_per_spunlb, markersize=8, linestyle='-', linewidth=2, color='blue', label = '')
+
+# Set the axis labels and title
+ax1.set_xlabel('Year', fontsize=16)
+ax1.set_ylabel('$lbCO_2$ per lb product', fontsize=16)
+ax1.tick_params(axis='both', which='both', direction='in', width=2, length=5, pad=8, labelsize=14, color='black')
+
+
+# Remove the grid from the plot
+ax1.grid(False)
+
+
+# Save the plot to a file
+#plt.savefig('plot.png', dpi=300, bbox_inches='tight')
+
+# Show the plot
+plt.show()
