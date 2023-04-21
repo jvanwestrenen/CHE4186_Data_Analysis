@@ -1,0 +1,74 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr 19 17:06:38 2023
+Electricity Usage plots UF Senior Design
+@author: jvanwestrenen
+"""
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#delete images
+plt.close('all')
+
+#import the data and select what I need
+data = pd.read_excel(r"C:\Users\Owner\Documents\CHE4186_Senior_Design\UFI Bristol Utilities 2016 to date - 2022 end.xlsx", sheet_name= 'Electricity')
+data.columns = data.iloc[1]
+data = data[2:]
+
+#make more manageble dataframe with all the important data
+elec = data.iloc[:, :6]
+elec = elec.dropna()
+
+#make dataframe based of yearly usage
+elec.loc[:, 'Date'] = pd.to_datetime(elec['Date'])
+elec.loc[:, 'Year'] = elec['Date'].dt.year
+
+#elec_yearly = elec.groupby('Year').sum().reset
+elec_yearly = elec.groupby('Year').sum().reset_index()
+
+#calculate the co2 emissions
+estimated_EF = 664.109/1000 #divide by a thousand to convert from MWH
+lbC02_E = elec['KWH'] * estimated_EF 
+lbC02_E_per_spunlb = lbC02_E.div(elec['Spun Pounds'])
+
+#plot yearly data--------------------------------------------------------------
+plt.rcParams.update({'font.size': 14, 'axes.linewidth': 2})
+fig, ax = plt.subplots(figsize = (8,8))
+ax.bar(elec_yearly['Year'], elec_yearly['KWH'], 
+       color = 'white', hatch = '//', edgecolor = 'black')
+ax.set_xlabel('Year')
+ax.set_ylabel('Electricity Usage (KWH)')
+
+axl = ax.twinx()
+axl.plot(elec_yearly['Year'], elec_yearly['Cooling Degree Days'], 
+         linestyle = '-', color = 'red')
+
+axl.set_ylabel('Total Cooling Degree Days')
+ax.tick_params(axis='both', which='both', direction='in', 
+               width=2, length=5, pad=8, labelsize=14, color='black')
+axl.tick_params(axis='both', which='both', direction='in', 
+               width=2, length=5, pad=8, labelsize=14, color='black')
+
+#plot electricity usage per month--------------------------------------------
+
+# Create the figure and axis objects
+fig1, ax1 = plt.subplots(figsize=(8, 8))
+
+# Plot the data
+ax1.plot(elec['Date'], lbC02_E_per_spunlb, markersize=8, linestyle='-', linewidth=2, color='blue', label = '')
+
+# Set the axis labels and title
+ax1.set_xlabel('Year', fontsize=16)
+ax1.set_ylabel('lb $CO_2$ per lb product', fontsize=16)
+ax1.tick_params(axis='both', which='both', direction='in', width=2, length=5, pad=8, labelsize=14, color='black')
+
+
+# Remove the grid from the plot
+ax1.grid(False)
+
+
+# Save the plot to a file
+#plt.savefig('plot.png', dpi=300, bbox_inches='tight')
+
+# Show the plot
+plt.show()
