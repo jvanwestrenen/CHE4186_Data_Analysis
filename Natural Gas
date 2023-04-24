@@ -66,7 +66,7 @@ ax.set_ylabel('Natural Gas Usage (MMBtu)')
 axl = ax.twinx()
 axl.plot(df_NG_yearly['Year'], df_NG_yearly['Heat Degree Days'], linestyle = '-', color = 'red')
 
-axl.set_ylabel('Total Heeating Degree Days)')
+axl.set_ylabel('Total Heating Degree Days')
 ax.tick_params(axis='both', which='both', direction='in', width=2, length=5, pad=8, labelsize=14, color='black')
 
 
@@ -83,7 +83,7 @@ ax1.plot(df_NG['Date'], lbC02_NG_per_spunlb, markersize=8, linestyle='-', linewi
 
 # Set the axis labels and title
 ax1.set_xlabel('Year', fontsize=16)
-ax1.set_ylabel('$lbCO_2$ per lb product', fontsize=16)
+ax1.set_ylabel('lb $CO_2$e per lb product', fontsize=16)
 ax1.tick_params(axis='both', which='both', direction='in', width=2, length=5, pad=8, labelsize=14, color='black')
 
 
@@ -96,3 +96,4 @@ ax1.grid(False)
 
 # Show the plot
 plt.show()
+
