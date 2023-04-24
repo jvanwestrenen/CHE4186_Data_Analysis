@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Apr 19 17:06:38 2023
-Electricity Usage plots UF Senior Design
+Electricity Usaged plots UF Senior Design
 @author: jvanwestrenen
 """
 import pandas as pd
@@ -26,11 +26,13 @@ elec.loc[:, 'Year'] = elec['Date'].dt.year
 #elec_yearly = elec.groupby('Year').sum().reset
 elec_yearly = elec.groupby('Year').sum().reset_index()
 
-#calculate the co2 emissions
-estimated_EF = 664.109/1000 #divide by a thousand to convert from MWH
+#calculate the co2 emmisions
+estimated_EF = 664.109/1000 #divide by a tousand to convert from MWH
 lbC02_E = elec['KWH'] * estimated_EF 
 lbC02_E_per_spunlb = lbC02_E.div(elec['Spun Pounds'])
 
+print(elec_yearly['KWH'].div(elec_yearly['Spun Pounds']) * estimated_EF)
+print(elec_yearly['Year'])
 #plot yearly data--------------------------------------------------------------
 plt.rcParams.update({'font.size': 14, 'axes.linewidth': 2})
 fig, ax = plt.subplots(figsize = (8,8))
@@ -59,7 +61,7 @@ ax1.plot(elec['Date'], lbC02_E_per_spunlb, markersize=8, linestyle='-', linewidt
 
 # Set the axis labels and title
 ax1.set_xlabel('Year', fontsize=16)
-ax1.set_ylabel('lb $CO_2$ per lb product', fontsize=16)
+ax1.set_ylabel('lb $CO_2$e per lb product', fontsize=16)
 ax1.tick_params(axis='both', which='both', direction='in', width=2, length=5, pad=8, labelsize=14, color='black')
 
 
